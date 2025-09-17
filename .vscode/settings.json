@@ -1,0 +1,7 @@
+{
+    "editor.defaultFormatter": "esbenpp.pretier-vscodee",
+    "editor.formatOnSave": false,
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenpp.pretier-vscodee"
+    }
+}
