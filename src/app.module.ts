@@ -5,9 +5,11 @@ import { SharedModule } from './shared/shared.module';
 import { CoreModule } from './core/core.module';
 import { VinylsModule } from './vinyls/vinyls.module';
 import { AuthMiddleware } from './auth/auth.middleware';
+import { PrismaModule } from './prisma/prisma.module';
+import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [SharedModule, CoreModule, VinylsModule],
+  imports: [SharedModule, CoreModule, VinylsModule, PrismaModule, UserModule],
   controllers: [AppController],
   providers: [AppService],
 })
