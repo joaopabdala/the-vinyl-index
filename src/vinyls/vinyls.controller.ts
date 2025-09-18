@@ -10,15 +10,18 @@ import {
   Body,
   HttpCode,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { VinylsService } from './vinyls.service';
 import { CreateVinylDto } from './dto/create-vinyl.dto';
 import { QueryFilterDto } from './dto/query-filter.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('vinyls')
 export class VinylsController {
   constructor(private readonly vinylsService: VinylsService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   @HttpCode(201)
   create(@Body() createItem: CreateVinylDto) {
