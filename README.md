@@ -96,3 +96,6 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+
+docker run -d   --name mysql-prisma   -e MYSQL_ROOT_PASSWORD=root   -e MYSQL_DATABASE=my_db   -p 3306:3306   mysql:8
