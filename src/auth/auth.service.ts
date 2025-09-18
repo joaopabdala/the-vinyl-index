@@ -57,7 +57,7 @@ export class AuthService {
     }
 
     // Credenciais ok, gerar JWT (payload pode incluir informações úteis do usuário)
-    const payload = { sub: user.id, email: user.email }; // 'sub' é padrão JWT para subject (id do usuário)
+    const payload = { sub: user.id, email: user.email, role: user.role }; // 'sub' é padrão JWT para subject (id do usuário)
     const token = await this.jwtService.signAsync(payload);
 
     return {
