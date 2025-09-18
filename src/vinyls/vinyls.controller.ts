@@ -6,11 +6,14 @@ import {
   Patch,
   Delete,
   Param,
+  Query,
   Body,
   HttpCode,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { VinylsService } from './vinyls.service';
-import type { Vinyl } from './vinyls.service';
+import { CreateVinylDto } from './dto/create-vinyl.dto';
+import { QueryFilterDto } from './dto/query-filter.dto';
 
 @Controller('vinyls')
 export class VinylsController {
@@ -18,33 +21,36 @@ export class VinylsController {
 
   @Post()
   @HttpCode(201)
-  create(@Body() createItem: Omit<Vinyl, 'id'>) {
+  create(@Body() createItem: CreateVinylDto) {
     return this.vinylsService.create(createItem);
   }
 
   @Get()
-  findAll() {
-    return this.vinylsService.findAll();
+  findAll(@Query() query: QueryFilterDto) {
+    return this.vinylsService.findAll(query.filter, query.page);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.vinylsService.findOne(Number(id));
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.vinylsService.findOne(id);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() body: Partial<Vinyl>) {
-    return this.vinylsService.update(Number(id), body);
+  update(@Param('id', ParseIntPipe) id: number, @Body() body: CreateVinylDto) {
+    return this.vinylsService.update(id, body);
   }
 
   @Patch(':id')
-  partialUpdate(@Param('id') id: string, @Body() body: Partial<Vinyl>) {
-    return this.vinylsService.update(Number(id), body);
+  partialUpdate(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: CreateVinylDto,
+  ) {
+    return this.vinylsService.update(id, body);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id') id: string) {
-    this.vinylsService.remove(Number(id));
+  remove(@Param('id', ParseIntPipe) id: number) {
+    this.vinylsService.remove(id);
   }
 }

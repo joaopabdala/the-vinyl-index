@@ -1,13 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { release } from 'os';
+import { Vinyl } from './interfaces/vinyls.interface';
+import { CreateVinylDto } from './dto/create-vinyl.dto';
 
-export interface Vinyl {
-  id: number;
-  title: string;
-  artist: string;
-  release_date: Date;
-  genre: string;
-}
 @Injectable()
 export class VinylsService {
   private vinyls: Vinyl[] = [
@@ -20,7 +14,7 @@ export class VinylsService {
     },
   ];
 
-  create(vinyl: Omit<Vinyl, 'id'>) {
+  create(vinyl: CreateVinylDto): Vinyl {
     const newVinyl: Vinyl = {
       id: this.vinyls.length + 1,
       title: vinyl.title,
@@ -32,8 +26,17 @@ export class VinylsService {
     return newVinyl;
   }
 
-  findAll() {
-    return this.vinyls;
+  findAll(filter?: string, page: number = 1): Vinyl[] {
+    let result = this.vinyls;
+
+    if (filter) {
+      result = result.filter((vinyl) =>
+        vinyl.title.toLowerCase().includes(filter.toLowerCase()),
+      );
+    }
+
+    const pageSize = 5;
+    return result.slice((page - 1) * pageSize, page * pageSize);
   }
 
   findOne(id: number): Vinyl {
