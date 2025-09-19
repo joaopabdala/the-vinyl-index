@@ -19,6 +19,7 @@ cd the-vinyl-index
 # Configuração do banco de dados
 # Crie um arquivo .env na raiz com a variável:
 DATABASE_URL="mysql://root:root@localhost:3306/my_db"
+DABATASES="mysql"
 
 # Caso não tenha MySQL rodando, crie via Docker
 docker run -d --name mysql-prisma \
