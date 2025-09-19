@@ -1,59 +1,85 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Vinyl } from './interfaces/vinyls.interface';
-import { CreateVinylDto } from './dto/create-vinyl.dto';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { Prisma, Vinyl } from '@prisma/client';
 
 @Injectable()
 export class VinylsService {
-  private vinyls: Vinyl[] = [
-    {
-      id: 1,
-      title: 'The Marble Index',
-      artist: 'Nico',
-      release_date: new Date('1968-11-01'),
-      genre: 'Avant-garde',
-    },
-  ];
+  constructor(private prisma: PrismaService) {}
 
-  create(vinyl: CreateVinylDto): Vinyl {
-    const newVinyl: Vinyl = {
-      id: this.vinyls.length + 1,
-      title: vinyl.title,
-      artist: vinyl.artist,
-      release_date: new Date(vinyl.release_date),
-      genre: vinyl.genre,
-    };
-    this.vinyls.push(newVinyl);
-    return newVinyl;
+  // Criar novo vinyl
+  async create(data: Prisma.VinylCreateInput): Promise<Vinyl> {
+    try {
+      return await this.prisma.vinyl.create({ data });
+    } catch (error) {
+      throw new BadRequestException('Erro ao criar o vinyl: ' + error.message);
+    }
   }
 
-  findAll(filter?: string, page: number = 1): Vinyl[] {
-    let result = this.vinyls;
+  // Listar todos os vinyls com filtro e paginação
+  async findAll(filter?: string, page: number = 1): Promise<Vinyl[]> {
+    const pageSize = 5;
+    const skip = (page - 1) * pageSize;
 
-    if (filter) {
-      result = result.filter((vinyl) =>
-        vinyl.title.toLowerCase().includes(filter.toLowerCase()),
+    try {
+      const where: Prisma.VinylWhereInput = filter
+        ? { title: { contains: filter } }
+        : {};
+
+      return await this.prisma.vinyl.findMany({
+        where,
+        skip,
+        take: pageSize,
+      });
+    } catch (error) {
+      throw new BadRequestException('Erro ao buscar vinyls: ' + error.message);
+    }
+  }
+
+  // Buscar vinyl por ID
+  async findOne(id: number): Promise<Vinyl> {
+    try {
+      const vinyl = await this.prisma.vinyl.findUnique({ where: { id } });
+      if (!vinyl) throw new NotFoundException('Vinyl não encontrado');
+      return vinyl;
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new BadRequestException('Erro ao buscar o vinyl: ' + error.message);
+    }
+  }
+
+  // Atualizar vinyl
+  async update(
+    id: number,
+    updateData: Prisma.VinylUpdateInput,
+  ): Promise<Vinyl> {
+    try {
+      await this.findOne(id); // garante que existe
+      return await this.prisma.vinyl.update({
+        where: { id },
+        data: updateData,
+      });
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new BadRequestException(
+        'Erro ao atualizar o vinyl: ' + error.message,
       );
     }
-
-    const pageSize = 5;
-    return result.slice((page - 1) * pageSize, page * pageSize);
   }
 
-  findOne(id: number): Vinyl {
-    const vinyl = this.vinyls.find((vinyl) => vinyl.id === id);
-    if (!vinyl) throw new NotFoundException('Vinyl não encontrado');
-    return vinyl;
-  }
-
-  update(id: number, updateData) {
-    const vinyl = this.findOne(id);
-    Object.assign(vinyl, updateData);
-    return vinyl;
-  }
-
-  remove(id: number) {
-    const index = this.vinyls.findIndex((vinyl) => vinyl.id === id);
-    if (index === -1) throw new NotFoundException('vinyl não encontrado');
-    this.vinyls.splice(index, 1);
+  // Remover vinyl
+  async remove(id: number): Promise<void> {
+    try {
+      await this.findOne(id); // garante que existe
+      await this.prisma.vinyl.delete({ where: { id } });
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new BadRequestException(
+        'Erro ao remover o vinyl: ' + error.message,
+      );
+    }
   }
 }

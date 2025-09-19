@@ -22,6 +22,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { Roles } from 'src/auth/roles.decorator';
 
 @ApiTags('vinyls')
 @ApiBearerAuth('Authorization')
@@ -30,6 +31,7 @@ export class VinylsController {
   constructor(private readonly vinylsService: VinylsService) {}
 
   @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
   @Post()
   @HttpCode(201)
   @ApiOperation({ summary: 'Cria um novo disco de vinil' })
@@ -60,6 +62,7 @@ export class VinylsController {
     return this.vinylsService.findOne(id);
   }
 
+  @Roles('ADMIN')
   @Patch(':id')
   @ApiOperation({ summary: 'Atualiza parcialmente um vinil' })
   @ApiResponse({ status: 200, description: 'Vinil atualizado parcialmente' })
@@ -71,6 +74,7 @@ export class VinylsController {
     return this.vinylsService.update(id, body);
   }
 
+  @Roles('ADMIN')
   @Delete(':id')
   @HttpCode(204)
   @ApiOperation({ summary: 'Remove um vinil pelo ID' })

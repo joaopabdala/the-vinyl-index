@@ -25,6 +25,8 @@ model User {
   password String @default("")
   role Role @default(USER)
   createdAt DateTime @default(now())
+
+  collections Collection[]
 }
 
 model Vinyl {
@@ -33,4 +35,18 @@ model Vinyl {
   artist String
   genre String
   release_date   DateTime
+
+  collections Collection[]
+}
+
+model Collection {
+  id      Int   @id @default(autoincrement())
+  user    User  @relation(fields: [userId], references: [id])
+  userId  Int
+  vinyl   Vinyl @relation(fields: [vinylId], references: [id])
+  vinylId Int
+
+  addedAt DateTime @default(now())
+
+  @@unique([userId, vinylId])
 }
