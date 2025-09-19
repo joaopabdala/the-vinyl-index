@@ -5,7 +5,9 @@
 
 **Descrição:** Gerencie coleções de discos de vinil.
 
-**Link para a API em Produção:** [Acessar API](#https://the-vinyl-index.onrender.com/api)
+**Link para a API em Produção:** [Acessar API](#https://the-vinyl-index.onrender.com/api) 
+
+https://the-vinyl-index.onrender.com/api
 
 ---
 
