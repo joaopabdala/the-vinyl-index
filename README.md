@@ -5,7 +5,7 @@
 
 **Descrição:** Gerencie coleções de discos de vinil.
 
-**Link para a API em Produção:** [Acessar API](#) *(substituir pela URL real)*
+**Link para a API em Produção:** [Acessar API](#https://the-vinyl-index.onrender.com/api)
 
 ---
 
@@ -17,9 +17,12 @@ git clone repository
 cd the-vinyl-index
 
 # Configuração do banco de dados
+
+#OBS: o provider esta configurado como postgresql como padrão, se for usar um mysql ele deve ser alterado em prisma/schema.prisma visto que o schema não suporta env variables para provider
+
 # Crie um arquivo .env na raiz com a variável:
 DATABASE_URL="mysql://root:root@localhost:3306/my_db"
-DABATASES="mysql"
+
 
 # Caso não tenha MySQL rodando, crie via Docker
 docker run -d --name mysql-prisma \
