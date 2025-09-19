@@ -12,39 +12,58 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { User } from '@prisma/client';
 import type { Request } from 'express';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { RegisterUserDto } from './dto/register-user.dto';
+import { JwtResponseDto } from './dto/jwt-token.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 
+export type SafeUser = Omit<User, 'password'>;
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @ApiOperation({ summary: 'Registra um novo usuário' })
+  @ApiResponse({
+    status: 201,
+    description: 'Usuário criado com sucesso',
+  })
   @Post('register')
-  // @HttpCode(HttpStatus.CREATED) - por padrão Post retorna 201 Created, use se quiser ser explícito
-  async register(
-    @Body('email') email: string,
-    @Body('password') password: string,
-    @Body('name') name: string,
-  ) {
+  async register(@Body() registerUserDto: RegisterUserDto): Promise<SafeUser> {
+    const { email, password, name } = registerUserDto;
     const newUser = await this.authService.register(email, password, name);
     return newUser;
   }
 
+  @ApiOperation({ summary: 'Realiza login com email e senha' })
+  @ApiResponse({
+    status: 200,
+    description: 'Login com sucesso',
+    type: JwtResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Credenciais inválidas' })
   @Post('login')
-  @HttpCode(HttpStatus.OK) // define o status 200 OK explicitamente
-  async login(
-    @Body('email') email: string,
-    @Body('password') password: string,
-  ) {
-    const jwt = await this.authService.login(email, password);
-    return jwt; // retornará { access_token: '...' }
+  @HttpCode(HttpStatus.OK)
+  async login(@Body() loginUserDto: LoginUserDto): Promise<JwtResponseDto> {
+    console.log('a');
+    const { email, password } = loginUserDto;
+
+    return await this.authService.login(email, password);
   }
 
+  @ApiOperation({ summary: 'Retorna dados do usuário logado' })
+  @ApiBearerAuth('Authorization')
+  @ApiResponse({ status: 200, description: 'Usuário autenticado' })
+  @ApiResponse({ status: 401, description: 'Token inválido ou ausente' })
   @UseGuards(JwtAuthGuard)
   @Get('perfil')
   async getPerfil(@Req() request) {
     const usuarioLogado = await request.user;
-    return {
-      message: 'Você acessou uma rota protegida!',
-      user: usuarioLogado,
-    };
+    return { message: 'Você acessou uma rota protegida!', user: usuarioLogado };
   }
 }
